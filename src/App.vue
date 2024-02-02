@@ -15,10 +15,10 @@
 			<!-- Replacing the options section -->
 			<div class="options">
 				<label v-for="(option, index) in getCurrentQuestion.options" :for="'option' + index" :class="`option ${getCurrentQuestion.selected == index
-						? index == getCurrentQuestion.correct_answer
-							? 'correct'
-							: 'wrong'
-						: ''
+					? index == getCurrentQuestion.correct_answer
+						? 'correct'
+						: 'wrong'
+					: ''
 					} ${getCurrentQuestion.selected != null && index != getCurrentQuestion.selected
 						? 'disabled'
 						: ''
