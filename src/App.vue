@@ -8,7 +8,8 @@
 
 		<section class="quiz" v-else-if="!quizCompleted && questions.length > 0">
 			<div class="quiz-info">
-				<span class="question">{{ getCurrentQuestion.question }}</span>
+				<!-- Updated line to render question with v-html -->
+				<span class="question" v-html="decodeEntities(getCurrentQuestion.question)"></span>
 				<span class="score">Score {{ score }}/{{ questions.length }}</span>
 			</div>
 
@@ -25,7 +26,7 @@
 					}`">
 					<input type="radio" :id="'option' + index" :name="getCurrentQuestion.index" :value="index"
 						v-model="getCurrentQuestion.selected" :disabled="getCurrentQuestion.selected" @change="SetAnswer" />
-					<span>{{ option }}</span>
+					<span>{{ decodeEntities(option) }}</span> <!-- Update to decode option entities -->
 				</label>
 			</div>
 
@@ -43,10 +44,11 @@
 		<section v-else>
 			<h2>You have finished the quiz!</h2>
 			<p>Your score is {{ score }}/{{ questions.length }}</p>
+			<button class="restart-btn" @click="restartQuiz">Restart</button>
 		</section>
 	</main>
 </template>
-  
+
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
@@ -77,23 +79,12 @@ const fetchData = async () => {
 	}
 };
 
-const getOptionClass = (optionIndex) => {
-	const isSelected = currentQuestion.value !== null && currentQuestion.value.selected === optionIndex;
-	const isCorrect = isSelected && optionIndex === currentQuestion.value.correct_answer;
-	const isWrong = isSelected && optionIndex !== currentQuestion.value.correct_answer;
-	const isDisabled = isSelected;
-
-	return {
-		option: true,
-		correct: isCorrect,
-		wrong: isWrong,
-		disabled: isDisabled,
-	};
+// Method to decode HTML entities
+const decodeEntities = (html) => {
+	const txt = document.createElement('textarea');
+	txt.innerHTML = html;
+	return txt.value;
 };
-
-onMounted(() => {
-	fetchData();
-});
 
 const score = computed(() => {
 	let value = 0;
@@ -122,7 +113,17 @@ const NextQuestion = () => {
 
 	quizCompleted.value = true;
 };
+
+const restartQuiz = () => {
+    loading.value = true;
+    quizCompleted.value = false;
+    currentQuestion.value = 0;
+    fetchData();
+};
+
+onMounted(() => {
+	fetchData();
+});
 </script>
-  
   
 <style src="./style.css"></style>
